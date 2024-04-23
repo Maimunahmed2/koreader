@@ -139,7 +139,15 @@ function setup_env() {
 }
 
 function kodev-fetch-thirdparty() {
-    make fetchthirdparty
+    current_directory="$(pwd)"
+
+    # Check if the directory contains spaces or special characters.
+    if [[ "$current_directory" == *" "* ]] || [ "$(echo "$current_directory" | grep -P '[^a-zA-Z0-9/]')" ]; then
+        echo "Current directory contains spaces or special characters."
+    else
+        echo "Current directory does not contain spaces."
+        make fetchthirdparty
+    fi
 }
 
 SUPPORTED_TARGETS="
