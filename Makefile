@@ -158,21 +158,29 @@ coverage: $(INSTALL_DIR)/koreader/.luacov
 		luacov.report.out
 
 fetchthirdparty:
-	git submodule init
 	git submodule sync
-ifneq (,$(CI))
-	git submodule update --depth 1 --jobs 3
-else
-	# Force shallow clones of submodules configured as such.
-	git submodule update --jobs 3 --depth 1 $(shell \
-		git config --file=.gitmodules --name-only --get-regexp '^submodule\.[^.]+\.shallow$$' true \
-		| sed 's/\.shallow$$/.path/' \
-		| xargs -n1 git config --file=.gitmodules \
-		)
-	# Update the rest.
-	git submodule update --jobs 3
-endif
-	$(MAKE) -C $(KOR_BASE) fetchthirdparty
+	git submodule sync | awk 'NR % 2 == 0 {print}'
+# fetchthirdparty:
+# 	@echo "Syncing submodules..."
+# 	@git submodule sync | awk 'NR>1 { printf "%s\n", prev_line } { prev_line = $0 } END { if (prev_line != "") printf "%s\n", prev_line; printf "Hi\n" }'
+# 	@echo "Submodules synced successfully."
+
+# fetchthirdparty:
+# 	git submodule init
+# 	git submodule sync
+# ifneq (,$(CI))
+# 	git submodule update --depth 1 --jobs 3
+# else
+# 	# Force shallow clones of submodules configured as such.
+# 	git submodule update --jobs 3 --depth 1 $(shell \
+# 		git config --file=.gitmodules --name-only --get-regexp '^submodule\.[^.]+\.shallow$$' true \
+# 		| sed 's/\.shallow$$/.path/' \
+# 		| xargs -n1 git config --file=.gitmodules \
+# 		)
+# 	# Update the rest.
+# 	git submodule update --jobs 3
+# endif
+# 	$(MAKE) -C $(KOR_BASE) fetchthirdparty
 
 VERBOSE ?= @
 Q = $(VERBOSE:1=)
